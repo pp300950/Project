@@ -25,8 +25,7 @@ import psycopg2.extras
 from fastapi import FastAPI, HTTPException, Depends, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import JSONResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 import jwt  # pip install PyJWT
 
@@ -585,14 +584,10 @@ def health():
     return {"status": "ok", "ts": datetime.now(TZ_BKK).isoformat()}
 
 
-@app.get("/", tags=["System"], include_in_schema=False)
+@app.get("/", tags=["System"])
 def root():
-    return RedirectResponse(url="/login.html")
-
-
-# ── Static files (frontend) — mount สุดท้ายเสมอ ──────────
-# วาง HTML/CSS/JS ไว้ใน folder "static" ข้างๆ main.py
-import os as _os
-_static_dir = _os.path.join(_os.path.dirname(__file__), "static")
-if _os.path.isdir(_static_dir):
-    app.mount("/", StaticFiles(directory=_static_dir), name="static")
+    return {
+        "app": "Smart Shoe Monitor API",
+        "version": "1.0.0",
+        "docs": "/docs",
+    }

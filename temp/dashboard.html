@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Smart Shoe Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  /* ===== Stat grid ===== */
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    margin-bottom:2rem;
+  }
+  .stat{background:var(--panel); padding:1.1rem 1.2rem; position:relative;}
+  .stat-label{font-size:11.5px; color:var(--ink-soft); margin-bottom:.5rem;}
+  .stat-value{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:28px; font-weight:600; line-height:1;
+    display:flex; align-items:baseline; gap:.35rem;
+  }
+  .stat-value .unit{font-size:13px; font-weight:500; color:var(--ink-faint);}
+  .stat-sub{font-size:11.5px; color:var(--ink-faint); margin-top:.45rem;}
+  .stat.flag-danger .stat-value{color:var(--clay);}
+  .stat.flag-warning .stat-value{color:var(--gold);}
+  .stat.flag-ok .stat-value{color:var(--pine);}
+  .stat-icon{position:absolute; top:1.1rem; right:1.2rem; width:7px; height:7px; border-radius:50%;}
+  .stat.flag-danger .stat-icon{background:var(--clay);}
+  .stat.flag-warning .stat-icon{background:var(--gold-mid);}
+  .stat.flag-ok .stat-icon{background:var(--pine-mid);}
+
+  @media (max-width: 900px){ .stat-grid{grid-template-columns:repeat(2,1fr);} }
+
+  /* ===== Body grid ===== */
+  .body-grid{display:grid; grid-template-columns:1.15fr .85fr; gap:1.5rem;}
+  @media (max-width: 980px){ .body-grid{grid-template-columns:1fr;} }
+
+  /* ===== Zone breakdown bars ===== */
+  .zone-bars{padding:1.1rem 1.2rem;}
+  .zone-bar-row{margin-bottom:1rem;}
+  .zone-bar-row:last-child{margin-bottom:0;}
+  .zone-bar-top{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:.4rem;}
+  .zone-bar-top .zname{font-weight:600;}
+  .zone-bar-top .zcount{font-family:'IBM Plex Mono',monospace; color:var(--ink-faint);}
+  .zone-bar-track{height:8px; border-radius:4px; background:var(--paper); overflow:hidden;}
+  .zone-bar-fill{height:100%; border-radius:4px; transition:width .4s ease;}
+  .zone-bar-fill.fence{background:var(--gold-mid);}
+  .zone-bar-fill.pool{background:var(--clay-mid);}
+
+  /* ===== Event log ===== */
+  .event-row{display:flex; gap:.8rem; padding:.7rem 1.2rem; border-bottom:1px solid var(--line-soft); font-size:12.5px;}
+  .event-row:last-child{border-bottom:none;}
+  .event-time{font-family:'IBM Plex Mono',monospace; color:var(--ink-faint); font-size:11px; width:46px; flex-shrink:0; padding-top:.15rem;}
+  .event-dot{width:7px; height:7px; border-radius:50%; margin-top:.45rem; flex-shrink:0;}
+  .event-dot.danger{background:var(--clay);}
+  .event-dot.warning{background:var(--gold-mid);}
+  .event-dot.ok{background:var(--pine-mid);}
+  .event-dot.info{background:var(--slate);}
+  .event-text strong{font-weight:600;}
+  .event-sub{color:var(--ink-faint); font-size:11px; margin-top:1px;}
+  .event-log-body{max-height:560px; overflow-y:auto;}
+
+  .refresh-note{
+    display:flex; align-items:center; gap:.4rem;
+    font-size:11px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace;
+  }
+
+  .footnote{
+    margin-top:1.5rem; padding:1rem 1.2rem;
+    border:1px dashed var(--line); border-radius:var(--radius);
+    font-size:11.5px; color:var(--ink-faint);
+    display:flex; gap:.6rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-mark">SS</div>
+    <div class="brand-text">
+      <h1>Smart Shoe Monitor</h1>
+      <p>ระบบเฝ้าระวังการสวมรองเท้าและความเสี่ยงการพลัดหลง</p>
+    </div>
+  </div>
+  <nav class="app-nav" aria-label="เมนูหลัก">
+    <a href="dashboard.html" aria-current="page">Dashboard</a>
+    <a href="log.html">Log</a>
+    <a href="report.html">Report</a>
+  </nav>
+  <div class="header-right">
+    <div class="live-pill" id="livePill"><span class="live-dot" id="liveDot"></span><span id="liveText">เชื่อมต่อ server...</span></div>
+    <div class="user-pill">ผู้ดูแล: <span class="who" id="headerUser">—</span></div>
+    <button class="logout-btn" id="logoutBtn">ออกจากระบบ</button>
+  </div>
+</header>
+
+<main class="app-main">
+
+  <div class="section-label">สรุปภาพรวมวันนี้</div>
+  <div class="stat-grid" id="statGrid">
+    <div class="stat"><div class="state-block"><span class="spinner"></span></div></div>
+    <div class="stat"><div class="state-block"><span class="spinner"></span></div></div>
+    <div class="stat"><div class="state-block"><span class="spinner"></span></div></div>
+    <div class="stat"><div class="state-block"><span class="spinner"></span></div></div>
+  </div>
+
+  <div class="body-grid">
+
+    <div>
+      <div class="section-label">สัดส่วนจุดเสี่ยงที่ถูกละเมิดวันนี้</div>
+      <div class="panel" style="margin-bottom:1.5rem;">
+        <div class="panel-head">
+          <h2>เข้าใกล้จุดอันตราย แยกตามจุด</h2>
+          <span class="count" id="zoneTotalCount">—</span>
+        </div>
+        <div class="zone-bars" id="zoneBars">
+          <div class="state-block"><span class="spinner"></span></div>
+        </div>
+      </div>
+
+      <div class="section-label">เกี่ยวกับหน้านี้</div>
+      <div class="footnote">
+        <span class="mono" aria-hidden="true">ⓘ</span>
+        <span>ข้อมูลในหน้านี้ดึงสดจาก <code class="mono">/api/dashboard/summary</code> นับเฉพาะวันนี้ (เวลาไทย) ดูประวัติย้อนหลังทั้งหมดได้ที่หน้า <strong>Log</strong> และดูแนวโน้มเชิงสถิติได้ที่หน้า <strong>Report</strong></span>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label" style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;">
+        <span style="white-space:nowrap;">บันทึกเหตุการณ์ล่าสุด</span>
+        <span class="refresh-note" id="refreshNote">อัปเดตล่าสุด —</span>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Event log</h2>
+          <span class="count" id="eventCount">—</span>
+        </div>
+        <div class="panel-body event-log-body" id="eventLog">
+          <div class="state-block"><span class="spinner"></span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script src="shared.js"></script>
+<script>
+  requireAuth();
+  initHeaderChrome();
+
+  const REFRESH_MS = 15000;
+  let refreshTimer = null;
+
+  async function loadSummary() {
+    try {
+      const data = await authFetch('/api/dashboard/summary');
+      setLive(true);
+      renderStats(data);
+      renderZoneBars(data.breach_by_zone || {});
+      renderEvents(data.recent_events || []);
+      document.getElementById('refreshNote').textContent =
+        'อัปเดตล่าสุด ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    } catch (err) {
+      setLive(false);
+      if (err.status !== 401) {
+        renderError(err.message || 'โหลดข้อมูลไม่สำเร็จ');
+      }
+    }
+  }
+
+  function setLive(ok) {
+    document.getElementById('liveDot').className = 'live-dot' + (ok ? '' : ' off');
+    document.getElementById('liveText').textContent = ok ? 'เชื่อมต่อ server' : 'เชื่อมต่อ server ไม่ได้';
+  }
+
+  function renderStats(data) {
+    const breachToday = data.breach_today ?? 0;
+    const shoeToday = data.shoe_removed_today ?? 0;
+    const byZone = data.breach_by_zone || {};
+    const fenceCount = byZone.fence ?? 0;
+    const poolCount = byZone.pool ?? 0;
+
+    const cards = [
+      {
+        flag: breachToday > 0 ? 'danger' : 'ok',
+        label: 'เข้าใกล้จุดอันตราย (วันนี้)',
+        value: breachToday, unit: 'ครั้ง',
+        sub: `รั้วบ้าน ${fenceCount} · สระว่ายน้ำ ${poolCount}`,
+      },
+      {
+        flag: shoeToday > 0 ? 'warning' : 'ok',
+        label: 'ถอดรองเท้า (วันนี้)',
+        value: shoeToday, unit: 'ครั้ง',
+        sub: shoeToday > 0 ? 'ดูรายละเอียดในตาราง Log' : 'ยังไม่มีการถอดรองเท้าวันนี้',
+      },
+      {
+        flag: 'ok',
+        label: 'จุดเสี่ยงที่ตรวจพบ',
+        value: Object.keys(byZone).length, unit: 'จุด',
+        sub: Object.keys(byZone).length ? Object.keys(byZone).map(zoneLabel).join(' · ') : 'ไม่มีการละเมิดวันนี้',
+      },
+      {
+        flag: 'ok',
+        label: 'เหตุการณ์ล่าสุด',
+        value: (data.recent_events || []).length, unit: 'รายการ',
+        sub: 'แสดง 20 รายการล่าสุดทุกประเภท',
+      },
+    ];
+
+    document.getElementById('statGrid').innerHTML = cards.map(c => `
+      <div class="stat flag-${c.flag}">
+        <div class="stat-icon"></div>
+        <div class="stat-label">${c.label}</div>
+        <div class="stat-value">${c.value}<span class="unit">${c.unit}</span></div>
+        <div class="stat-sub">${c.sub}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderZoneBars(byZone) {
+    const entries = Object.entries(byZone);
+    const wrap = document.getElementById('zoneBars');
+    const totalEl = document.getElementById('zoneTotalCount');
+    const total = entries.reduce((s, [, v]) => s + v, 0);
+    totalEl.textContent = `${total} ครั้งวันนี้`;
+
+    if (!entries.length) {
+      wrap.innerHTML = `<div class="state-block"><span class="state-icon">✓</span>ยังไม่มีการละเมิดจุดเสี่ยงวันนี้</div>`;
+      return;
+    }
+
+    const max = Math.max(...entries.map(([, v]) => v), 1);
+    wrap.innerHTML = entries.map(([zone, count]) => `
+      <div class="zone-bar-row">
+        <div class="zone-bar-top">
+          <span class="zname">${zoneLabel(zone)}</span>
+          <span class="zcount">${count} ครั้ง</span>
+        </div>
+        <div class="zone-bar-track">
+          <div class="zone-bar-fill ${zone === 'pool' ? 'pool' : 'fence'}" style="width:${(count / max) * 100}%"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderEvents(events) {
+    document.getElementById('eventCount').textContent = `${events.length} รายการ`;
+    const log = document.getElementById('eventLog');
+
+    if (!events.length) {
+      log.innerHTML = `<div class="state-block"><span class="state-icon">—</span>ยังไม่มีเหตุการณ์บันทึก</div>`;
+      return;
+    }
+
+    log.innerHTML = events.map(e => {
+      const sev = eventSeverity(e);
+      const time = e.ts_local ? new Date(e.ts_local).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false }) : '—';
+      const who = e.label || e.device_id || 'อุปกรณ์ไม่ทราบชื่อ';
+      let text = eventTypeLabel(e.event_type);
+      let sub = e.device_id || '';
+
+      if (e.event_type === 'zone_breach') {
+        sub = `${zoneLabel(e.zone)} · ระยะ ${fmtDistance(e.distance_cm)}`;
+      } else if (e.event_type === 'shoe_removed') {
+        if (e.shoe_left === false && e.shoe_right === false) text = 'ถอดรองเท้าทั้งสองข้าง';
+        else if (e.shoe_left === false) text = 'ถอดรองเท้าข้างซ้าย';
+        else if (e.shoe_right === false) text = 'ถอดรองเท้าข้างขวา';
+        sub = e.device_id || '';
+      } else if (e.event_type === 'step_data') {
+        sub = `${e.step_count ?? 0} ก้าว · ${e.device_id || ''}`;
+      }
+
+      return `
+        <div class="event-row">
+          <span class="event-time">${time}</span>
+          <span class="event-dot ${sev}"></span>
+          <div class="event-text">
+            <strong>${who}</strong> ${text}
+            <div class="event-sub">${sub}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderError(message) {
+    document.getElementById('statGrid').innerHTML = `
+      <div class="stat" style="grid-column:1/-1;">
+        <div class="state-block error"><span class="state-icon">⚠</span>${message}</div>
+      </div>`;
+  }
+
+  // initial load + polling
+  loadSummary();
+  refreshTimer = setInterval(loadSummary, REFRESH_MS);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') loadSummary();
+  });
+</script>
+
+</body>
+</html>

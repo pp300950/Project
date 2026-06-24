@@ -1,0 +1,332 @@
+/* ═══════════════════════════════════════════════════════════
+   Smart Shoe Monitor — shared.css
+   Design tokens + layout components ใช้ร่วมกันทุกหน้า
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; -webkit-text-size-adjust: 100%; }
+
+/* ── Design Tokens ─────────────────────────────────────── */
+:root {
+  /* Base palette — warm neutral */
+  --paper:       #faf8f4;
+  --panel:       #ffffff;
+  --ink:         #1e2620;
+  --ink-soft:    #4a5549;
+  --ink-faint:   #8a9188;
+
+  /* Lines */
+  --line:        #dedad4;
+  --line-soft:   #ece9e1;
+
+  /* Pine (green) — primary / ok */
+  --pine:        #1f4d3d;
+  --pine-mid:    #2e6e57;
+  --pine-light:  #e8f0ec;
+
+  /* Gold (amber) — warning */
+  --gold:        #8a6a1a;
+  --gold-mid:    #c09a28;
+  --gold-light:  #fdf5dc;
+
+  /* Clay (red) — danger / alert */
+  --clay:        #b5482f;
+  --clay-mid:    #d06448;
+  --clay-light:  #fdeee9;
+
+  /* Slate — info / neutral */
+  --slate:       #5a7a9a;
+  --slate-light: #e8eef5;
+
+  /* Radius */
+  --radius:      10px;
+  --radius-sm:   6px;
+
+  /* Focus ring */
+  --focus-ring:  0 0 0 3px rgba(46,110,87,.25);
+
+  /* Header height — used by sticky positioning */
+  --header-h:    60px;
+}
+
+/* ── Base ──────────────────────────────────────────────── */
+body {
+  font-family: 'IBM Plex Sans Thai', 'IBM Plex Sans', system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Typography helpers ────────────────────────────────── */
+.mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+code.mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .85em;
+  background: var(--line-soft);
+  padding: .1em .35em;
+  border-radius: 3px;
+}
+
+/* ── App header ────────────────────────────────────────── */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--header-h);
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+}
+
+/* Brand */
+.brand { display: flex; align-items: center; gap: .75rem; flex-shrink: 0; }
+.brand-mark {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: var(--gold-mid);
+  color: var(--ink);
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.brand-text h1 {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+}
+.brand-text p {
+  font-size: 10.5px;
+  color: rgba(255,255,255,.5);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Nav */
+.app-nav {
+  display: flex;
+  gap: .2rem;
+  margin-left: .4rem;
+}
+.app-nav a {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,.6);
+  text-decoration: none;
+  padding: .4rem .75rem;
+  border-radius: var(--radius-sm);
+  transition: background .12s, color .12s;
+}
+.app-nav a:hover { background: rgba(255,255,255,.1); color: #fff; }
+.app-nav a[aria-current="page"] { background: rgba(255,255,255,.14); color: #fff; }
+
+/* Header right section */
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-shrink: 0;
+}
+
+/* Live indicator */
+.live-pill {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: 11.5px;
+  color: rgba(255,255,255,.55);
+}
+.live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #4caf82;
+  box-shadow: 0 0 0 2px rgba(76,175,130,.3);
+  animation: livePulse 2.2s ease-in-out infinite;
+}
+.live-dot.off {
+  background: var(--clay-mid);
+  box-shadow: none;
+  animation: none;
+}
+@keyframes livePulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(76,175,130,.3); }
+  50%       { box-shadow: 0 0 0 4px rgba(76,175,130,.08); }
+}
+
+/* User pill */
+.user-pill {
+  font-size: 11.5px;
+  color: rgba(255,255,255,.5);
+}
+.user-pill .who {
+  color: rgba(255,255,255,.85);
+  font-weight: 600;
+}
+
+/* Logout button */
+.logout-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.6);
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--radius-sm);
+  padding: .35rem .7rem;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.logout-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
+
+/* ── Main content ──────────────────────────────────────── */
+.app-main {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 1.6rem 1.5rem 3rem;
+}
+
+/* ── Section label ─────────────────────────────────────── */
+.section-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: .65rem;
+  padding-left: .1rem;
+}
+
+/* ── Panel (card) ──────────────────────────────────────── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .85rem 1.2rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+.panel-head h2 {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.panel-body { padding: 1rem 1.2rem; }
+
+/* Count badge in panel head */
+.count {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: .15rem .65rem;
+}
+
+/* ── Chip (event type badge) ───────────────────────────── */
+.chip {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: .18rem .6rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.chip.danger  { background: var(--clay-light);  color: var(--clay); }
+.chip.warning { background: var(--gold-light);  color: var(--gold); }
+.chip.ok      { background: var(--pine-light);  color: var(--pine); }
+.chip.info    { background: var(--slate-light); color: var(--slate); }
+.chip.neutral { background: var(--line-soft);   color: var(--ink-soft); }
+
+/* ── Buttons ───────────────────────────────────────────── */
+.btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: .55rem 1.1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--pine);
+  color: #fff;
+  border-color: var(--pine);
+}
+.btn-primary:not(:disabled):hover { background: var(--pine-mid); border-color: var(--pine-mid); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: var(--line);
+}
+.btn-ghost:not(:disabled):hover { background: var(--paper); border-color: var(--ink-faint); }
+
+.btn-danger {
+  background: var(--clay);
+  color: #fff;
+  border-color: var(--clay);
+}
+.btn-danger:not(:disabled):hover { background: var(--clay-mid); border-color: var(--clay-mid); }
+
+/* ── State blocks (empty / loading / error) ────────────── */
+.state-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  padding: 2.2rem 1.5rem;
+  font-size: 13px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+.state-block.error { color: var(--clay); }
+.state-icon { font-size: 22px; line-height: 1; }
+
+/* ── Spinner ───────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 20px; height: 20px;
+  border: 2px solid var(--line);
+  border-top-color: var(--pine-mid);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive helpers ────────────────────────────────── */
+@media (max-width: 640px) {
+  .app-header { gap: .7rem; padding: 0 1rem; }
+  .brand-text p { display: none; }
+  .app-main { padding: 1.1rem 1rem 2.5rem; }
+  .header-right { gap: .45rem; }
+}
+@media (max-width: 480px) {
+  .app-nav a { padding: .35rem .5rem; font-size: 12px; }
+  .brand-text h1 { font-size: 13px; }
+}

@@ -1,0 +1,28 @@
+# Smart Shoe Monitor — Render Deploy Config
+# วางไฟล์นี้ไว้ที่ root ของ repository
+# Render จะอ่านและตั้งค่า service อัตโนมัติ
+#
+# วิธีใช้: ไปที่ render.com → New → Blueprint → เลือก repo นี้
+
+services:
+  - type: web
+    name: smart-shoe-monitor
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free                  # เปลี่ยนเป็น starter เพื่อไม่ให้ sleep
+    healthCheckPath: /health
+
+    envVars:
+      - key: SUPABASE_DB_URL
+        sync: false             # กรอกใน Render Dashboard (ไม่ commit ค่าจริง)
+      - key: SECRET_KEY
+        generateValue: true     # Render สุ่มให้อัตโนมัติ
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: LINE_TOKEN
+        sync: false
+      - key: LINE_USER_ID
+        sync: false

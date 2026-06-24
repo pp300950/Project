@@ -1,0 +1,6 @@
+รองเท้า (ESP8266)
+  └─ POST /api/event
+       └─ FastAPI (main.py)
+            ├─ บันทึกลง PostgreSQL (Supabase)
+            ├─ ส่ง LINE แจ้งผู้ดูแล (ถ้า event สำคัญ)
+            └─ หน้าเว็บ (dashboard / log / report) ดึงข้อมูลแสดงผล

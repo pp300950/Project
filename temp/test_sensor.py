@@ -19,7 +19,7 @@ from datetime import datetime
 # ตั้งค่าเป้าหมาย
 # ─────────────────────────────────────────────
 
-BASE_URL   = "http://localhost:8000"   # ← เปลี่ยนเป็น https://your-app.onrender.com ตอน deploy
+BASE_URL = "https://smart-shoe-monitor.onrender.com"  # ✅ ถูก
 DEVICE_ID  = "esp8266_test_01"         # ← device_id ที่จะส่งข้อมูล
 
 # ─────────────────────────────────────────────

@@ -1,430 +1,501 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Report — Smart Shoe Monitor</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css">
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="logo.png">
+  <title>Report — Smart Shoe Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* ─── Range selector strip ─────────────────────────── */
+    .range-strip {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: 1.4rem;
+      flex-wrap: wrap;
+    }
 
-/* ─── Range selector strip ─────────────────────────── */
-.range-strip {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  margin-bottom: 1.4rem;
-  flex-wrap: wrap;
-}
-.range-strip label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  margin-right: .25rem;
-}
-.range-btn {
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  padding: .35rem .85rem;
-  border-radius: 20px;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  color: var(--ink-soft);
-  cursor: pointer;
-  transition: background .1s, color .1s, border-color .1s;
-}
-.range-btn:hover { background: var(--pine-light); border-color: var(--pine-mid); color: var(--pine); }
-.range-btn.active { background: var(--pine); color: #fff; border-color: var(--pine); }
+    .range-strip label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-right: .25rem;
+    }
 
-/* ─── Chart layout ─────────────────────────────────── */
-.report-grid {
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-@media (max-width: 1000px) { .report-grid { grid-template-columns: 1fr; } }
+    .range-btn {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: .35rem .85rem;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: background .1s, color .1s, border-color .1s;
+    }
 
-.chart-panel { position: relative; }
-.chart-wrap {
-  padding: 1.4rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+    .range-btn:hover {
+      background: var(--pine-light);
+      border-color: var(--pine-mid);
+      color: var(--pine);
+    }
 
-/* donut */
-.donut-outer {
-  position: relative;
-  width: 220px;
-  height: 220px;
-  flex-shrink: 0;
-}
-.donut-centre {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-.donut-centre .dc-total {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 30px;
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1;
-}
-.donut-centre .dc-label {
-  font-size: 11px;
-  color: var(--ink-faint);
-  margin-top: .25rem;
-}
+    .range-btn.active {
+      background: var(--pine);
+      color: #fff;
+      border-color: var(--pine);
+    }
 
-/* legend */
-.donut-legend {
-  margin-top: 1.2rem;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: .55rem;
-}
-.legend-row {
-  display: flex;
-  align-items: center;
-  gap: .65rem;
-  font-size: 12.5px;
-}
-.legend-swatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-.legend-name { flex: 1; color: var(--ink-soft); }
-.legend-count {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  color: var(--ink-faint);
-}
-.legend-pct {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: var(--ink-faint);
-  width: 38px;
-  text-align: right;
-}
+    /* ─── Chart layout ─────────────────────────────────── */
+    .report-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
 
-/* line charts */
-.line-wrap {
-  padding: 1.1rem 1.4rem;
-  height: 220px;
-}
+    @media (max-width: 1000px) {
+      .report-grid {
+        grid-template-columns: 1fr;
+      }
+    }
 
-/* step stats */
-.step-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--line);
-}
-@media (max-width: 700px) { .step-grid { grid-template-columns: 1fr; } }
-.step-stat {
-  background: var(--panel);
-  padding: 1rem 1.1rem;
-}
-.step-stat-label { font-size: 11px; color: var(--ink-faint); margin-bottom: .4rem; }
-.step-stat-value {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 26px;
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1;
-}
-.step-stat-unit { font-size: 12px; color: var(--ink-faint); margin-left: .25rem; }
-.step-stat-sub { font-size: 11px; color: var(--ink-faint); margin-top: .4rem; }
+    .chart-panel {
+      position: relative;
+    }
 
-/* notice banner */
-.step-notice {
-  font-size: 12px;
-  color: var(--ink-faint);
-  background: var(--gold-light);
-  border: 1px solid #e6d48a;
-  border-radius: var(--radius-sm);
-  padding: .65rem 1rem;
-  margin-top: 1rem;
-  display: flex;
-  gap: .5rem;
-  align-items: flex-start;
-}
+    .chart-wrap {
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-/* device table */
-.device-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12.5px;
-}
-.device-table th {
-  text-align: left;
-  padding: .55rem .9rem;
-  font-size: 10.5px;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  border-bottom: 1px solid var(--line);
-  background: var(--paper);
-}
-.device-table td {
-  padding: .6rem .9rem;
-  border-bottom: 1px solid var(--line-soft);
-  vertical-align: middle;
-}
-.device-table tr:last-child td { border-bottom: none; }
-.device-table tr:hover td { background: var(--paper); }
-.mono-cell { font-family: 'IBM Plex Mono', monospace; color: var(--ink-soft); }
+    /* donut */
+    .donut-outer {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      flex-shrink: 0;
+    }
 
-/* tab bar for line charts */
-.tab-bar {
-  display: flex;
-  gap: .25rem;
-  padding: .65rem 1.2rem 0;
-  border-bottom: 1px solid var(--line-soft);
-}
-.tab-btn {
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  padding: .4rem .75rem;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: none;
-  color: var(--ink-soft);
-  cursor: pointer;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  margin-bottom: -1px;
-}
-.tab-btn.active {
-  color: var(--pine);
-  border-bottom-color: var(--pine);
-  background: var(--pine-light);
-}
+    .donut-centre {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
 
-</style>
+    .donut-centre .dc-total {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 30px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .donut-centre .dc-label {
+      font-size: 11px;
+      color: var(--ink-faint);
+      margin-top: .25rem;
+    }
+
+    /* legend */
+    .donut-legend {
+      margin-top: 1.2rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      font-size: 12.5px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .legend-name {
+      flex: 1;
+      color: var(--ink-soft);
+    }
+
+    .legend-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--ink-faint);
+    }
+
+    .legend-pct {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-faint);
+      width: 38px;
+      text-align: right;
+    }
+
+    /* line charts */
+    .line-wrap {
+      padding: 1.1rem 1.4rem;
+      height: 220px;
+    }
+
+    /* step stats */
+    .step-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    @media (max-width: 700px) {
+      .step-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .step-stat {
+      background: var(--panel);
+      padding: 1rem 1.1rem;
+    }
+
+    .step-stat-label {
+      font-size: 11px;
+      color: var(--ink-faint);
+      margin-bottom: .4rem;
+    }
+
+    .step-stat-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .step-stat-unit {
+      font-size: 12px;
+      color: var(--ink-faint);
+      margin-left: .25rem;
+    }
+
+    .step-stat-sub {
+      font-size: 11px;
+      color: var(--ink-faint);
+      margin-top: .4rem;
+    }
+
+    /* notice banner */
+    .step-notice {
+      font-size: 12px;
+      color: var(--ink-faint);
+      background: var(--gold-light);
+      border: 1px solid #e6d48a;
+      border-radius: var(--radius-sm);
+      padding: .65rem 1rem;
+      margin-top: 1rem;
+      display: flex;
+      gap: .5rem;
+      align-items: flex-start;
+    }
+
+    /* device table */
+    .device-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    .device-table th {
+      text-align: left;
+      padding: .55rem .9rem;
+      font-size: 10.5px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .device-table td {
+      padding: .6rem .9rem;
+      border-bottom: 1px solid var(--line-soft);
+      vertical-align: middle;
+    }
+
+    .device-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .device-table tr:hover td {
+      background: var(--paper);
+    }
+
+    .mono-cell {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ink-soft);
+    }
+
+    /* tab bar for line charts */
+    .tab-bar {
+      display: flex;
+      gap: .25rem;
+      padding: .65rem 1.2rem 0;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .tab-btn {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: .4rem .75rem;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: none;
+      color: var(--ink-soft);
+      cursor: pointer;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      margin-bottom: -1px;
+    }
+
+    .tab-btn.active {
+      color: var(--pine);
+      border-bottom-color: var(--pine);
+      background: var(--pine-light);
+    }
+  </style>
 </head>
+
 <body>
 
-<header class="app-header">
-  <div class="brand">
-    <img src="logo.png" alt="ALZ Guard" class="brand-mark">
-    <div class="brand-text">
+  <header class="app-header">
+    <div class="brand">
+      <img src="logo.png" alt="ALZ Guard" class="brand-mark">
+      <div class="brand-text">
         <h1>Smart IoT for Alzheimer's Safety</h1>
-      <p>ระบบอัจฉริยะเฝ้าระวังเเละบันทึกความเสี่ยง</p>
+        <p>ระบบอัจฉริยะเฝ้าระวังเเละบันทึกความเสี่ยง</p>
+      </div>
     </div>
-  </div>
-  <nav class="app-nav" aria-label="เมนูหลัก">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="log.html">Log</a>
-    <a href="report.html" aria-current="page">Report</a>
-  </nav>
-  <div class="header-right">
-    <div class="user-pill">ผู้ดูแล: <span class="who" id="headerUser">—</span></div>
-    <button class="logout-btn" id="logoutBtn">ออกจากระบบ</button>
-  </div>
-</header>
+    <nav class="app-nav" aria-label="เมนูหลัก">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="log.html">Log</a>
+      <a href="report.html" aria-current="page">Report</a>
+    </nav>
+    <div class="header-right">
+      <div class="user-pill">ผู้ดูแล: <span class="who" id="headerUser">—</span></div>
+      <button class="logout-btn" id="logoutBtn">ออกจากระบบ</button>
+    </div>
+  </header>
 
-<main class="app-main">
+  <main class="app-main">
 
-  <!-- ── Range selector ─────────────────────────────── -->
-  <div class="range-strip">
-    <label>ช่วงเวลา:</label>
-    <button class="range-btn" data-days="7">7 วัน</button>
-    <button class="range-btn active" data-days="30">30 วัน</button>
-    <button class="range-btn" data-days="90">90 วัน</button>
-  </div>
+    <!-- ── Range selector ─────────────────────────────── -->
+    <div class="range-strip">
+      <label>ช่วงเวลา:</label>
+      <button class="range-btn" data-days="7">7 วัน</button>
+      <button class="range-btn active" data-days="30">30 วัน</button>
+      <button class="range-btn" data-days="90">90 วัน</button>
+    </div>
 
-  <!-- ── Row 1: Donut + Line charts ───────────────────── -->
-  <div class="report-grid">
+    <!-- ── Row 1: Donut + Line charts ───────────────────── -->
+    <div class="report-grid">
 
-    <!-- Donut: zone pie -->
-    <div>
-      <div class="section-label">สัดส่วนจุดเสี่ยงที่ถูกละเมิด</div>
-      <div class="panel chart-panel">
-        <div class="panel-head">
-          <h2>Zone Breach — Pie Chart</h2>
-          <span class="count" id="pieDaysLabel">—</span>
+      <!-- Donut: zone pie -->
+      <div>
+        <div class="section-label">สัดส่วนจุดเสี่ยงที่ถูกละเมิด</div>
+        <div class="panel chart-panel">
+          <div class="panel-head">
+            <h2>Zone Breach — Pie Chart</h2>
+            <span class="count" id="pieDaysLabel">—</span>
+          </div>
+          <div class="chart-wrap" id="pieWrap">
+            <div class="state-block"><span class="spinner"></span></div>
+          </div>
         </div>
-        <div class="chart-wrap" id="pieWrap">
-          <div class="state-block"><span class="spinner"></span></div>
+      </div>
+
+      <!-- Line charts (tabbed: daily / hourly) -->
+      <div>
+        <div class="section-label">แนวโน้มเหตุการณ์ตามเวลา</div>
+        <div class="panel chart-panel">
+          <div class="tab-bar">
+            <button class="tab-btn active" id="tabDaily">รายวัน</button>
+            <button class="tab-btn" id="tabHourly">รายชั่วโมง</button>
+          </div>
+          <div id="lineWrap">
+            <div class="state-block"><span class="spinner"></span></div>
+          </div>
         </div>
+      </div>
+
+    </div>
+
+    <!-- ── Row 2: Step stats ──────────────────────────── -->
+    <div class="section-label">สถิติการย่ำเท้า (Step Data)</div>
+    <div class="panel" style="margin-bottom:1.5rem;">
+      <div class="panel-head">
+        <h2>ข้อมูลการย่ำเท้า — รองรับล่วงหน้า (ESP-01 Shoe Sensor)</h2>
+        <span class="count" id="stepDaysLabel">—</span>
+      </div>
+      <div id="stepBody">
+        <div class="state-block"><span class="spinner"></span></div>
+      </div>
+      <div class="step-notice" id="stepNotice" style="display:none;margin:0 1rem 1rem;">
+        <span>ⓘ</span>
+        <span>ฟีเจอร์นี้รองรับไว้ล่วงหน้า — ข้อมูลจะแสดงเมื่อมีการติดปุ่มกดใต้รองเท้าและส่ง <code
+            class="mono">step_data</code> ขึ้นมายัง server</span>
       </div>
     </div>
 
-    <!-- Line charts (tabbed: daily / hourly) -->
-    <div>
-      <div class="section-label">แนวโน้มเหตุการณ์ตามเวลา</div>
-      <div class="panel chart-panel">
-        <div class="tab-bar">
-          <button class="tab-btn active" id="tabDaily">รายวัน</button>
-          <button class="tab-btn" id="tabHourly">รายชั่วโมง</button>
-        </div>
-        <div id="lineWrap">
-          <div class="state-block"><span class="spinner"></span></div>
-        </div>
-      </div>
-    </div>
+  </main>
 
-  </div>
+  <!-- Chart.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="shared.js"></script>
+  <script>
+    requireAuth();
+    initHeaderChrome();
 
-  <!-- ── Row 2: Step stats ──────────────────────────── -->
-  <div class="section-label">สถิติการย่ำเท้า (Step Data)</div>
-  <div class="panel" style="margin-bottom:1.5rem;">
-    <div class="panel-head">
-      <h2>ข้อมูลการย่ำเท้า — รองรับล่วงหน้า (ESP-01 Shoe Sensor)</h2>
-      <span class="count" id="stepDaysLabel">—</span>
-    </div>
-    <div id="stepBody">
-      <div class="state-block"><span class="spinner"></span></div>
-    </div>
-    <div class="step-notice" id="stepNotice" style="display:none;margin:0 1rem 1rem;">
-      <span>ⓘ</span>
-      <span>ฟีเจอร์นี้รองรับไว้ล่วงหน้า — ข้อมูลจะแสดงเมื่อมีการติดปุ่มกดใต้รองเท้าและส่ง <code class="mono">step_data</code> ขึ้นมายัง server</span>
-    </div>
-  </div>
+    /* ─── State ──────────────────────────────────────────── */
+    let activeDays = 30;
+    let activeLineTab = 'daily'; // 'daily' | 'hourly'
 
-</main>
+    /* Chart instances — keep references to destroy on reload */
+    let pieChart = null;
+    let lineChart = null;
 
-<!-- Chart.js from CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="shared.js"></script>
-<script>
-requireAuth();
-initHeaderChrome();
+    /* ─── Range buttons ─────────────────────────────────── */
+    document.querySelectorAll('.range-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeDays = parseInt(btn.dataset.days, 10);
+        loadAll();
+      });
+    });
 
-/* ─── State ──────────────────────────────────────────── */
-let activeDays = 30;
-let activeLineTab = 'daily'; // 'daily' | 'hourly'
+    /* ─── Tab buttons ───────────────────────────────────── */
+    document.getElementById('tabDaily').addEventListener('click', () => switchTab('daily'));
+    document.getElementById('tabHourly').addEventListener('click', () => switchTab('hourly'));
 
-/* Chart instances — keep references to destroy on reload */
-let pieChart = null;
-let lineChart = null;
-
-/* ─── Range buttons ─────────────────────────────────── */
-document.querySelectorAll('.range-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeDays = parseInt(btn.dataset.days, 10);
-    loadAll();
-  });
-});
-
-/* ─── Tab buttons ───────────────────────────────────── */
-document.getElementById('tabDaily').addEventListener('click', () => switchTab('daily'));
-document.getElementById('tabHourly').addEventListener('click', () => switchTab('hourly'));
-
-function switchTab(tab) {
-  activeLineTab = tab;
-  document.getElementById('tabDaily').classList.toggle('active', tab === 'daily');
-  document.getElementById('tabHourly').classList.toggle('active', tab === 'hourly');
-  // Re-render with already-fetched data stored in closures below
-  renderLineChart();
-}
-
-/* ─── Loaded data cache ─────────────────────────────── */
-let cachedDaily  = null;
-let cachedHourly = null;
-
-/* ─── Main load ─────────────────────────────────────── */
-async function loadAll() {
-  loadPie();
-  loadLine();
-  loadStepStats();
-}
-
-/* ─── Pie chart ──────────────────────────────────────── */
-async function loadPie() {
-  const wrap = document.getElementById('pieWrap');
-  wrap.innerHTML = `<div class="state-block"><span class="spinner"></span></div>`;
-  document.getElementById('pieDaysLabel').textContent = `${activeDays} วันล่าสุด`;
-
-  if (pieChart) { pieChart.destroy(); pieChart = null; }
-
-  try {
-    const data = await authFetch(`/api/report/zone-pie?days=${activeDays}`);
-    renderPie(data);
-  } catch (err) {
-    if (err.status !== 401) {
-      wrap.innerHTML = `<div class="state-block error"><span class="state-icon">⚠</span>${err.message || 'โหลดข้อมูลไม่สำเร็จ'}</div>`;
+    function switchTab(tab) {
+      activeLineTab = tab;
+      document.getElementById('tabDaily').classList.toggle('active', tab === 'daily');
+      document.getElementById('tabHourly').classList.toggle('active', tab === 'hourly');
+      // Re-render with already-fetched data stored in closures below
+      renderLineChart();
     }
-  }
-}
 
-function renderPie(data) {
-  const wrap = document.getElementById('pieWrap');
+    /* ─── Loaded data cache ─────────────────────────────── */
+    let cachedDaily = null;
+    let cachedHourly = null;
 
-  if (!data || !data.length) {
-    wrap.innerHTML = `<div class="state-block"><span class="state-icon">✓</span>ยังไม่มีการละเมิดจุดเสี่ยงในช่วงเวลานี้</div>`;
-    return;
-  }
+    /* ─── Main load ─────────────────────────────────────── */
+    async function loadAll() {
+      loadPie();
+      loadLine();
+      loadStepStats();
+    }
 
-  const COLORS = {
-    fence:   '#1565c0',   // น้ำเงินสด
-    pool:    '#e02020',   // แดงสด
-    unknown: '#5a6a78',
-  };
+    /* ─── Pie chart ──────────────────────────────────────── */
+    async function loadPie() {
+      const wrap = document.getElementById('pieWrap');
+      wrap.innerHTML = `<div class="state-block"><span class="spinner"></span></div>`;
+      document.getElementById('pieDaysLabel').textContent = `${activeDays} วันล่าสุด`;
 
-  // แปลง zone จาก DB (ภาษาไทย หรือ key อังกฤษ) → key มาตรฐาน
-  const ZONE_KEY_MAP = {
-    'รั้วบ้าน':    'fence',
-    'สระว่ายน้ำ':  'pool',
-    'เซนเซอร์ 3':  'fence',  // sensor_3 = รั้วบ้าน (จุดเดียวกัน)
-    'sensor_3':    'fence',  // key อังกฤษ
-    'fence':       'fence',
-    'pool':        'pool',
-  };
-  function zoneKey(zone) {
-    return ZONE_KEY_MAP[zone] || 'unknown';
-  }
+      if (pieChart) { pieChart.destroy(); pieChart = null; }
 
-  // รวม row ที่เป็น sensor_3 / เซนเซอร์ 3 เข้ากับ รั้วบ้าน
-  const mergedMap = {};
-  for (const r of data) {
-    const key = ZONE_KEY_MAP[r.zone] || 'unknown';
-    if (!mergedMap[key]) mergedMap[key] = { zone: key, count: 0 };
-    mergedMap[key].count += r.count;
-  }
-  // แปลง key กลับเป็น display label
-  const KEY_LABEL = { fence: 'รั้วบ้าน', pool: 'สระว่ายน้ำ', unknown: 'อื่น ๆ' };
-  const mergedData = Object.entries(mergedMap).map(([key, v]) => ({ zone: KEY_LABEL[key] || key, count: v.count }));
+      try {
+        const data = await authFetch(`/api/report/zone-pie?days=${activeDays}`);
+        renderPie(data);
+      } catch (err) {
+        if (err.status !== 401) {
+          wrap.innerHTML = `<div class="state-block error"><span class="state-icon">⚠</span>${err.message || 'โหลดข้อมูลไม่สำเร็จ'}</div>`;
+        }
+      }
+    }
 
-  const total = mergedData.reduce((s, r) => s + r.count, 0);
+    function renderPie(data) {
+      const wrap = document.getElementById('pieWrap');
 
-  const labels = mergedData.map(r => zoneLabel(r.zone));
-  const counts = mergedData.map(r => r.count);
-  const colors = mergedData.map(r => COLORS[zoneKey(r.zone)] || '#8a9188');
+      if (!data || !data.length) {
+        wrap.innerHTML = `<div class="state-block"><span class="state-icon">✓</span>ยังไม่มีการละเมิดจุดเสี่ยงในช่วงเวลานี้</div>`;
+        return;
+      }
 
-  // Build legend HTML
-  const legendHTML = mergedData.map(r => {
-    const pct = total ? ((r.count / total) * 100).toFixed(1) : '0.0';
-    const col = COLORS[zoneKey(r.zone)] || '#8a9188';
-    return `
+      const COLORS = {
+        fence: '#1565c0',   // น้ำเงินสด
+        pool: '#e02020',   // แดงสด
+        unknown: '#5a6a78',
+      };
+
+      // แปลง zone จาก DB (ภาษาไทย หรือ key อังกฤษ) → key มาตรฐาน
+      const ZONE_KEY_MAP = {
+        'รั้วบ้าน': 'fence',
+        'สระว่ายน้ำ': 'pool',
+        'เซนเซอร์ 3': 'fence',  // sensor_3 = รั้วบ้าน (จุดเดียวกัน)
+        'sensor_3': 'fence',  // key อังกฤษ
+        'fence': 'fence',
+        'pool': 'pool',
+      };
+      function zoneKey(zone) {
+        return ZONE_KEY_MAP[zone] || 'unknown';
+      }
+
+      // รวม row ที่เป็น sensor_3 / เซนเซอร์ 3 เข้ากับ รั้วบ้าน
+      const mergedMap = {};
+      for (const r of data) {
+        const key = ZONE_KEY_MAP[r.zone] || 'unknown';
+        if (!mergedMap[key]) mergedMap[key] = { zone: key, count: 0 };
+        mergedMap[key].count += r.count;
+      }
+      // แปลง key กลับเป็น display label
+      const KEY_LABEL = { fence: 'รั้วบ้าน', pool: 'สระว่ายน้ำ', unknown: 'อื่น ๆ' };
+      const mergedData = Object.entries(mergedMap).map(([key, v]) => ({ zone: KEY_LABEL[key] || key, count: v.count }));
+
+      const total = mergedData.reduce((s, r) => s + r.count, 0);
+
+      const labels = mergedData.map(r => zoneLabel(r.zone));
+      const counts = mergedData.map(r => r.count);
+      const colors = mergedData.map(r => COLORS[zoneKey(r.zone)] || '#8a9188');
+
+      // Build legend HTML
+      const legendHTML = mergedData.map(r => {
+        const pct = total ? ((r.count / total) * 100).toFixed(1) : '0.0';
+        const col = COLORS[zoneKey(r.zone)] || '#8a9188';
+        return `
       <div class="legend-row">
         <span class="legend-swatch" style="background:${col}"></span>
         <span class="legend-name">${zoneLabel(r.zone)}</span>
         <span class="legend-count">${r.count} ครั้ง</span>
         <span class="legend-pct">${pct}%</span>
       </div>`;
-  }).join('');
+      }).join('');
 
-  wrap.innerHTML = `
+      wrap.innerHTML = `
     <div class="donut-outer">
       <canvas id="pieCanvas" width="220" height="220"></canvas>
       <div class="donut-centre">
@@ -435,225 +506,226 @@ function renderPie(data) {
     <div class="donut-legend">${legendHTML}</div>
   `;
 
-  const ctx = document.getElementById('pieCanvas').getContext('2d');
-  pieChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels,
-      datasets: [{
-        data: counts,
-        backgroundColor: colors,
-        borderColor: '#fdfcf9',
-        borderWidth: 3,
-        hoverOffset: 6,
-      }],
-    },
-    options: {
-      cutout: '64%',
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const pct = total ? ((ctx.parsed / total) * 100).toFixed(1) : '0.0';
-              return `${ctx.label}: ${ctx.parsed} ครั้ง (${pct}%)`;
+      const ctx = document.getElementById('pieCanvas').getContext('2d');
+      pieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data: counts,
+            backgroundColor: colors,
+            borderColor: '#fdfcf9',
+            borderWidth: 3,
+            hoverOffset: 6,
+          }],
+        },
+        options: {
+          cutout: '64%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => {
+                  const pct = total ? ((ctx.parsed / total) * 100).toFixed(1) : '0.0';
+                  return `${ctx.label}: ${ctx.parsed} ครั้ง (${pct}%)`;
+                },
+              },
             },
           },
         },
-      },
-    },
-  });
-}
-
-/* ─── Line charts ────────────────────────────────────── */
-async function loadLine() {
-  const wrap = document.getElementById('lineWrap');
-  wrap.innerHTML = `<div class="state-block"><span class="spinner"></span></div>`;
-  cachedDaily = null;
-  cachedHourly = null;
-  if (lineChart) { lineChart.destroy(); lineChart = null; }
-
-  try {
-    const [daily, hourly] = await Promise.all([
-      authFetch(`/api/report/daily-line?days=${activeDays}`),
-      authFetch(`/api/report/hourly-line?days=${activeDays}`),
-    ]);
-    cachedDaily  = daily;
-    cachedHourly = hourly;
-    renderLineChart();
-  } catch (err) {
-    if (err.status !== 401) {
-      wrap.innerHTML = `<div class="state-block error"><span class="state-icon">⚠</span>${err.message || 'โหลดข้อมูลไม่สำเร็จ'}</div>`;
+      });
     }
-  }
-}
 
-function renderLineChart() {
-  const wrap = document.getElementById('lineWrap');
-  if (!cachedDaily || !cachedHourly) return; // ยังโหลดไม่เสร็จ
+    /* ─── Line charts ────────────────────────────────────── */
+    async function loadLine() {
+      const wrap = document.getElementById('lineWrap');
+      wrap.innerHTML = `<div class="state-block"><span class="spinner"></span></div>`;
+      cachedDaily = null;
+      cachedHourly = null;
+      if (lineChart) { lineChart.destroy(); lineChart = null; }
 
-  if (lineChart) { lineChart.destroy(); lineChart = null; }
+      try {
+        const [daily, hourly] = await Promise.all([
+          authFetch(`/api/report/daily-line?days=${activeDays}`),
+          authFetch(`/api/report/hourly-line?days=${activeDays}`),
+        ]);
+        cachedDaily = daily;
+        cachedHourly = hourly;
+        renderLineChart();
+      } catch (err) {
+        if (err.status !== 401) {
+          wrap.innerHTML = `<div class="state-block error"><span class="state-icon">⚠</span>${err.message || 'โหลดข้อมูลไม่สำเร็จ'}</div>`;
+        }
+      }
+    }
 
-  if (activeLineTab === 'daily') {
-    renderDailyLine(wrap, cachedDaily);
-  } else {
-    renderHourlyLine(wrap, cachedHourly);
-  }
-}
+    function renderLineChart() {
+      const wrap = document.getElementById('lineWrap');
+      if (!cachedDaily || !cachedHourly) return; // ยังโหลดไม่เสร็จ
 
-/* รายวัน */
-function renderDailyLine(wrap, data) {
-  if (!data || !data.length) {
-    wrap.innerHTML = `<div class="state-block"><span class="state-icon">—</span>ยังไม่มีข้อมูลในช่วงเวลานี้</div>`;
-    return;
-  }
+      if (lineChart) { lineChart.destroy(); lineChart = null; }
 
-  // format date label สั้นๆ
-  const labels = data.map(r => {
-    const d = new Date(r.date);
-    return `${d.getDate()}/${d.getMonth() + 1}`;
-  });
+      if (activeLineTab === 'daily') {
+        renderDailyLine(wrap, cachedDaily);
+      } else {
+        renderHourlyLine(wrap, cachedHourly);
+      }
+    }
 
-  wrap.innerHTML = `<div class="line-wrap"><canvas id="lineCanvas"></canvas></div>`;
+    /* รายวัน */
+    function renderDailyLine(wrap, data) {
+      if (!data || !data.length) {
+        wrap.innerHTML = `<div class="state-block"><span class="state-icon">—</span>ยังไม่มีข้อมูลในช่วงเวลานี้</div>`;
+        return;
+      }
 
-  const ctx = document.getElementById('lineCanvas').getContext('2d');
-  lineChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'เข้าใกล้จุดอันตราย',
-          data: data.map(r => r.zone_breach || 0),
-          borderColor: '#d06448',
-          backgroundColor: 'rgba(208,100,72,.08)',
-          tension: .35,
-          fill: true,
-          pointRadius: data.length > 40 ? 0 : 3,
-          pointHoverRadius: 5,
+      // format date label สั้นๆ
+      const labels = data.map(r => {
+        const d = new Date(r.date);
+        return `${d.getDate()}/${d.getMonth() + 1}`;
+      });
+
+      wrap.innerHTML = `<div class="line-wrap"><canvas id="lineCanvas"></canvas></div>`;
+
+      const ctx = document.getElementById('lineCanvas').getContext('2d');
+      lineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'เข้าใกล้จุดอันตราย',
+              data: data.map(r => r.zone_breach || 0),
+              borderColor: '#d06448',
+              backgroundColor: 'rgba(208,100,72,.08)',
+              tension: .35,
+              fill: true,
+              pointRadius: data.length > 40 ? 0 : 3,
+              pointHoverRadius: 5,
+            },
+            {
+              label: 'ถอดรองเท้า',
+              data: data.map(r => r.shoe_removed || 0),
+              borderColor: '#c09a28',
+              backgroundColor: 'rgba(192,154,40,.07)',
+              tension: .35,
+              fill: true,
+              pointRadius: data.length > 40 ? 0 : 3,
+              pointHoverRadius: 5,
+            },
+          ],
         },
-        {
-          label: 'ถอดรองเท้า',
-          data: data.map(r => r.shoe_removed || 0),
-          borderColor: '#c09a28',
-          backgroundColor: 'rgba(192,154,40,.07)',
-          tension: .35,
-          fill: true,
-          pointRadius: data.length > 40 ? 0 : 3,
-          pointHoverRadius: 5,
+        options: _lineOptions('ครั้ง'),
+      });
+    }
+
+    /* รายชั่วโมง */
+    function renderHourlyLine(wrap, data) {
+      if (!data || !data.length) {
+        wrap.innerHTML = `<div class="state-block"><span class="state-icon">—</span>ยังไม่มีข้อมูลในช่วงเวลานี้</div>`;
+        return;
+      }
+
+      const labels = data.map(r => `${String(r.hour).padStart(2, '0')}:00`);
+
+      wrap.innerHTML = `<div class="line-wrap"><canvas id="lineCanvas"></canvas></div>`;
+
+      const ctx = document.getElementById('lineCanvas').getContext('2d');
+      lineChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'เข้าใกล้จุดอันตราย',
+            data: data.map(r => r.count),
+            backgroundColor: data.map(r =>
+              r.count > 0 ? 'rgba(208,100,72,.75)' : 'rgba(208,100,72,.15)'
+            ),
+            borderColor: '#d06448',
+            borderWidth: 1,
+            borderRadius: 3,
+          }],
         },
-      ],
-    },
-    options: _lineOptions('ครั้ง'),
-  });
-}
-
-/* รายชั่วโมง */
-function renderHourlyLine(wrap, data) {
-  if (!data || !data.length) {
-    wrap.innerHTML = `<div class="state-block"><span class="state-icon">—</span>ยังไม่มีข้อมูลในช่วงเวลานี้</div>`;
-    return;
-  }
-
-  const labels = data.map(r => `${String(r.hour).padStart(2, '0')}:00`);
-
-  wrap.innerHTML = `<div class="line-wrap"><canvas id="lineCanvas"></canvas></div>`;
-
-  const ctx = document.getElementById('lineCanvas').getContext('2d');
-  lineChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'เข้าใกล้จุดอันตราย',
-        data: data.map(r => r.count),
-        backgroundColor: data.map(r =>
-          r.count > 0 ? 'rgba(208,100,72,.75)' : 'rgba(208,100,72,.15)'
-        ),
-        borderColor: '#d06448',
-        borderWidth: 1,
-        borderRadius: 3,
-      }],
-    },
-    options: {
-      ..._lineOptions('ครั้ง'),
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10 }, color: '#8a9188',
-            maxRotation: 0,
-            callback: (v, i) => i % 3 === 0 ? labels[i] : '',
+        options: {
+          ..._lineOptions('ครั้ง'),
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                font: { family: "'IBM Plex Mono', monospace", size: 10 }, color: '#8a9188',
+                maxRotation: 0,
+                callback: (v, i) => i % 3 === 0 ? labels[i] : '',
+              },
+            },
+            y: {
+              grid: { color: '#ece9e1' },
+              ticks: { font: { size: 11 }, color: '#8a9188', stepSize: 1 },
+              beginAtZero: true,
+            },
           },
         },
-        y: {
-          grid: { color: '#ece9e1' },
-          ticks: { font: { size: 11 }, color: '#8a9188', stepSize: 1 },
-          beginAtZero: true,
-        },
-      },
-    },
-  });
-}
-
-function _lineOptions(yLabel) {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-      legend: {
-        display: true,
-        position: 'top',
-        labels: { font: { family: 'IBM Plex Sans Thai, sans-serif', size: 11.5 }, boxWidth: 10, boxHeight: 10, padding: 14 },
-      },
-      tooltip: {
-        callbacks: {
-          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y} ${yLabel}`,
-        },
-      },
-    },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10.5 }, color: '#8a9188' },
-      },
-      y: {
-        grid: { color: '#ece9e1' },
-        ticks: { font: { size: 11 }, color: '#8a9188', precision: 0 },
-        beginAtZero: true,
-      },
-    },
-  };
-}
-
-/* ─── Step stats ─────────────────────────────────────── */
-async function loadStepStats() {
-  const body = document.getElementById('stepBody');
-  body.innerHTML = `<div class="state-block"><span class="spinner"></span></div>`;
-  document.getElementById('stepDaysLabel').textContent = `${activeDays} วันล่าสุด`;
-  document.getElementById('stepNotice').style.display = 'none';
-
-  try {
-    const data = await authFetch(`/api/report/step-stats?days=${activeDays}`);
-    renderStepStats(data);
-  } catch (err) {
-    if (err.status !== 401) {
-      body.innerHTML = `<div class="state-block error"><span class="state-icon">⚠</span>${err.message || 'โหลดข้อมูลไม่สำเร็จ'}</div>`;
+      });
     }
-  }
-}
 
-function renderStepStats(data) {
-  const body = document.getElementById('stepBody');
-  const notice = document.getElementById('stepNotice');
+    function _lineOptions(yLabel) {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: { font: { family: 'IBM Plex Sans Thai, sans-serif', size: 11.5 }, boxWidth: 10, boxHeight: 10, padding: 14 },
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y} ${yLabel}`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10.5 }, color: '#8a9188' },
+          },
+          y: {
+            grid: { color: '#ece9e1' },
+            ticks: { font: { size: 11 }, color: '#8a9188', precision: 0 },
+            beginAtZero: true,
+          },
+        },
+      };
+    }
 
-  const total = data.total_steps || 0;
-  const days  = data.days || activeDays;
-  const avgPerDay = days > 0 ? Math.round(total / days) : 0;
-  const devices = data.by_device || [];
+    /* ─── Step stats ─────────────────────────────────────── */
+    async function loadStepStats() {
+      const body = document.getElementById('stepBody');
+      body.innerHTML = `<div class="state-block"><span class="spinner"></span></div>`;
+      document.getElementById('stepDaysLabel').textContent = `${activeDays} วันล่าสุด`;
+      document.getElementById('stepNotice').style.display = 'none';
 
-  // Summary cards
-  body.innerHTML = `
+      try {
+        const data = await authFetch(`/api/report/step-stats?days=${activeDays}`);
+        renderStepStats(data);
+      } catch (err) {
+        if (err.status !== 401) {
+          body.innerHTML = `<div class="state-block error"><span class="state-icon">⚠</span>${err.message || 'โหลดข้อมูลไม่สำเร็จ'}</div>`;
+        }
+      }
+    }
+
+    function renderStepStats(data) {
+      const body = document.getElementById('stepBody');
+      const notice = document.getElementById('stepNotice');
+
+      const total = data.total_steps || 0;
+      const days = data.days || activeDays;
+      const avgPerDay = days > 0 ? Math.round(total / days) : 0;
+      const devices = data.by_device || [];
+
+      // Summary cards
+      body.innerHTML = `
     <div class="step-grid">
       <div class="step-stat">
         <div class="step-stat-label">ก้าวรวมทั้งหมด</div>
@@ -695,14 +767,15 @@ function renderStepStats(data) {
     </div>` : ''}
   `;
 
-  // แสดง notice ถ้ายังไม่มีข้อมูล step
-  if (!total) {
-    notice.style.display = 'flex';
-  }
-}
+      // แสดง notice ถ้ายังไม่มีข้อมูล step
+      if (!total) {
+        notice.style.display = 'flex';
+      }
+    }
 
-/* ─── Boot ───────────────────────────────────────────── */
-loadAll();
-</script>
+    /* ─── Boot ───────────────────────────────────────────── */
+    loadAll();
+  </script>
 </body>
+
 </html>

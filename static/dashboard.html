@@ -187,7 +187,8 @@
     // รวม sensor_3 เข้ากับ fence เพราะเป็นจุดเดียวกัน
     const merged = {};
     for (const [zone, count] of Object.entries(byZone)) {
-      const key = (zone === 'sensor_3' || zone === 'เซนเซอร์ 3') ? 'fence' : zone;
+      const KEY_MAP = { 'sensor_3': 'fence', 'เซนเซอร์ 3': 'fence', 'รั้วบ้าน': 'fence', 'สระว่ายน้ำ': 'pool' };
+const key = KEY_MAP[zone] ?? zone;
       merged[key] = (merged[key] ?? 0) + count;
     }
     return merged;

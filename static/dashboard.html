@@ -51,8 +51,8 @@
   .zone-bar-top .zcount{font-family:'IBM Plex Mono',monospace; color:var(--ink-faint);}
   .zone-bar-track{height:8px; border-radius:4px; background:var(--paper); overflow:hidden;}
   .zone-bar-fill{height:100%; border-radius:4px; transition:width .4s ease;}
-  .zone-bar-fill.fence{background:var(--gold-mid);}
-  .zone-bar-fill.pool{background:var(--clay-mid);}
+  .zone-bar-fill.fence{background:#e02020;}
+  .zone-bar-fill.pool{background:#1565c0;}
 
   /* ===== Event log ===== */
   .event-row{display:flex; gap:.8rem; padding:.7rem 1.2rem; border-bottom:1px solid var(--line-soft); font-size:12.5px;}
@@ -183,10 +183,20 @@
     document.getElementById('liveText').textContent = ok ? 'เชื่อมต่อ server' : 'เชื่อมต่อ server ไม่ได้';
   }
 
+  function mergeZones(byZone) {
+    // รวม sensor_3 เข้ากับ fence เพราะเป็นจุดเดียวกัน
+    const merged = {};
+    for (const [zone, count] of Object.entries(byZone)) {
+      const key = zone === 'sensor_3' ? 'fence' : zone;
+      merged[key] = (merged[key] ?? 0) + count;
+    }
+    return merged;
+  }
+
   function renderStats(data) {
     const breachToday = data.breach_today ?? 0;
     const shoeToday = data.shoe_removed_today ?? 0;
-    const byZone = data.breach_by_zone || {};
+    const byZone = mergeZones(data.breach_by_zone || {});
     const fenceCount = byZone.fence ?? 0;
     const poolCount = byZone.pool ?? 0;
 
@@ -228,7 +238,7 @@
   }
 
   function renderZoneBars(byZone) {
-    const entries = Object.entries(byZone);
+    const entries = Object.entries(mergeZones(byZone));
     const wrap = document.getElementById('zoneBars');
     const totalEl = document.getElementById('zoneTotalCount');
     const total = entries.reduce((s, [, v]) => s + v, 0);

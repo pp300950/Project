@@ -376,8 +376,8 @@ function renderPie(data) {
   }
 
   const COLORS = {
-    fence:   '#ff6a00',   // ส้มสด
-    pool:    '#e8112d',   // แดงสด
+    fence:   '#1565c0',   // น้ำเงินสด
+    pool:    '#e02020',   // แดงสด
     unknown: '#5a6a78',
   };
 
@@ -385,7 +385,8 @@ function renderPie(data) {
   const ZONE_KEY_MAP = {
     'รั้วบ้าน':    'fence',
     'สระว่ายน้ำ':  'pool',
-    'เซนเซอร์ 3':  'pool',   // sensor3 นับรวมกับสระ
+    'เซนเซอร์ 3':  'fence',  // sensor_3 = รั้วบ้าน (จุดเดียวกัน)
+    'sensor_3':    'fence',  // key อังกฤษ
     'fence':       'fence',
     'pool':        'pool',
   };
@@ -393,14 +394,25 @@ function renderPie(data) {
     return ZONE_KEY_MAP[zone] || 'unknown';
   }
 
-  const total = data.reduce((s, r) => s + r.count, 0);
+  // รวม row ที่เป็น sensor_3 / เซนเซอร์ 3 เข้ากับ รั้วบ้าน
+  const mergedMap = {};
+  for (const r of data) {
+    const key = ZONE_KEY_MAP[r.zone] || 'unknown';
+    if (!mergedMap[key]) mergedMap[key] = { zone: key, count: 0 };
+    mergedMap[key].count += r.count;
+  }
+  // แปลง key กลับเป็น display label
+  const KEY_LABEL = { fence: 'รั้วบ้าน', pool: 'สระว่ายน้ำ', unknown: 'อื่น ๆ' };
+  const mergedData = Object.entries(mergedMap).map(([key, v]) => ({ zone: KEY_LABEL[key] || key, count: v.count }));
 
-  const labels = data.map(r => zoneLabel(r.zone));
-  const counts = data.map(r => r.count);
-  const colors = data.map(r => COLORS[zoneKey(r.zone)] || '#8a9188');
+  const total = mergedData.reduce((s, r) => s + r.count, 0);
+
+  const labels = mergedData.map(r => zoneLabel(r.zone));
+  const counts = mergedData.map(r => r.count);
+  const colors = mergedData.map(r => COLORS[zoneKey(r.zone)] || '#8a9188');
 
   // Build legend HTML
-  const legendHTML = data.map(r => {
+  const legendHTML = mergedData.map(r => {
     const pct = total ? ((r.count / total) * 100).toFixed(1) : '0.0';
     const col = COLORS[zoneKey(r.zone)] || '#8a9188';
     return `

@@ -257,7 +257,7 @@
           <span class="zcount">${count} ครั้ง</span>
         </div>
         <div class="zone-bar-track">
-          <div class="zone-bar-fill ${zone === 'pool' ? 'pool' : 'fence'}" style="width:${(count / max) * 100}%"></div>
+          <div class="zone-bar-fill ${(zone === 'pool' || zone === 'สระว่ายน้ำ') ? 'pool' : 'fence'}" style="width:${(count / max) * 100}%"></div>
         </div>
       </div>
     `).join('');

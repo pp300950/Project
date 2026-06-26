@@ -9,21 +9,24 @@ html { font-size: 14px; -webkit-text-size-adjust: 100%; }
 
 /* ── Design Tokens ─────────────────────────────────────── */
 :root {
-  /* Base palette — warm neutral */
-  --paper:       #faf8f4;
+  /* Base palette — cool hospital-light */
+  --paper:       #f3f8fa;
   --panel:       #ffffff;
-  --ink:         #1e2620;
-  --ink-soft:    #4a5549;
-  --ink-faint:   #8a9188;
+  --ink:         #1e2630;
+  --ink-soft:    #4a5868;
+  --ink-faint:   #8a96a3;
 
   /* Lines */
-  --line:        #dedad4;
-  --line-soft:   #ece9e1;
+  --line:        #d9e3ea;
+  --line-soft:   #e9eff3;
 
-  /* Pine (green) — primary / ok */
-  --pine:        #1f4d3d;
-  --pine-mid:    #2e6e57;
-  --pine-light:  #e8f0ec;
+  /* Sky (blue) — primary / ok */
+  --pine:        #1f5b78;
+  --pine-mid:    #2f86ab;
+  --pine-light:  #e7f3f8;
+
+  /* Header background — separate from --ink so body text stays neutral */
+  --header-bg:   #2f7da3;
 
   /* Gold (amber) — warning */
   --gold:        #8a6a1a;
@@ -44,7 +47,7 @@ html { font-size: 14px; -webkit-text-size-adjust: 100%; }
   --radius-sm:   6px;
 
   /* Focus ring */
-  --focus-ring:  0 0 0 3px rgba(46,110,87,.25);
+  --focus-ring:  0 0 0 3px rgba(47,134,171,.25);
 
   /* Header height — used by sticky positioning */
   --header-h:    60px;
@@ -75,14 +78,14 @@ code.mono {
   top: 0;
   z-index: 100;
   height: var(--header-h);
-  background: var(--ink);
+  background: var(--header-bg);
   color: #fff;
   display: flex;
   align-items: center;
   gap: 1.2rem;
   padding: 0 1.5rem;
   border-bottom: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
 }
 
 /* Brand */

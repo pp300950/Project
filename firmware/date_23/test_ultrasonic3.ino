@@ -145,7 +145,7 @@ void alertFence() {
   detectCount1 = 0;
 
   String msg = "❗❗ แจ้งเตือน ❗❗\n";
-  msg += "📌 ตรวจพบผู้ป่วย ณ\n";
+  msg += "🏚 ตรวจพบผู้ป่วย ณ\n";
   msg += "บริเวณ รั้วบ้าน🏚\n";
   msg += "🕐 เวลา: " + getTimestamp();
 
@@ -158,9 +158,9 @@ void alertPool() {
   lastAlert2 = millis();
   detectCount2 = 0;
 
-  String msg = "❗❗ แจ้งเตือน ❗❗\n";
-  msg += "📌 ตรวจพบผู้ป่วย ณ\n";
-  msg += "บริเวณ สระว่ายน้ำ🏊\n";
+  String msg = "⚡⚡ แจ้งเตือน ⚡⚡\n";
+  msg += "💦 ตรวจพบผู้ป่วย ณ\n";
+  msg += "บริเวณ สระว่ายน้ำ💦\n";
   msg += "🕐 เวลา: " + getTimestamp();
 
   Serial.println("[ALERT] สระว่ายน้ำ — " + getTimestamp());

@@ -41,31 +41,28 @@ const char* password = "12345678";
 
 // === Buzzer ===
 #define BUZZER_PIN         D5
-#define BUZZER_MAX_MS      2000   // ดังได้ไม่เกิน 2 วินาที
+#define BUZZER_DURATION_MS 2000   // ดัง 2 วินาทีแล้วดับ
 
-// === Cooldown ===
-#define COOLDOWN_MS        5000   // detect cooldown (buzzer/ระบบ)
-#define LINE_SAME_CD_MS    30000  // ห้ามส่ง LINE ข้อความเดิมซ้ำภายใน 30 วิ
+// === Cooldown LINE 30 วิ ===
+#define COOLDOWN_MS        30000
 
 // === Confirm ติดต่อกันกี่ครั้งถึงทริก ===
 #define DETECT_CONFIRM     3
 
-// --- ติดตามสถานะ ---
-unsigned long lastAlert1   = 0;   // cooldown buzzer/detect รั้ว
-unsigned long lastAlert2   = 0;   // cooldown buzzer/detect สระ
-unsigned long lastLine1    = 0;   // ครั้งล่าสุดที่ส่ง LINE รั้ว
-unsigned long lastLine2    = 0;   // ครั้งล่าสุดที่ส่ง LINE สระ
-
+unsigned long lastAlert1 = 0;
+unsigned long lastAlert2 = 0;
 int detectCount1 = 0;
 int detectCount2 = 0;
+
+// === สถานะ trigger (ต้องออกจาก zone ก่อนถึงทริกใหม่ได้) ===
+bool triggered1 = false;
+bool triggered2 = false;
 
 int timezone = 7 * 3600;
 int dst = 0;
 
 // === Buzzer non-blocking ===
-// pattern: ON 300ms → OFF 200ms → ON 300ms → OFF 200ms → ON 300ms → OFF (รวม ~1300ms < 2000ms)
 unsigned long buzzerStartTime = 0;
-int  buzzerStep   = 0;
 bool buzzerActive = false;
 
 // ================================================
@@ -120,94 +117,48 @@ float readDistanceCM(int trigPin, int echoPin, unsigned long timeout_us) {
   return duration * 0.034 / 2.0;
 }
 
-// --- Buzzer: เริ่มดังใหม่ (รีเซ็ต step) ---
 void startBuzzer() {
-  buzzerStep      = 0;
-  buzzerActive    = true;
+  buzzerActive = true;
   buzzerStartTime = millis();
   digitalWrite(BUZZER_PIN, HIGH);
 }
 
-// --- Buzzer: อัปเดตทุก loop ---
-// times[] = จุดเปลี่ยนสถานะ (ms): 300 OFF | 500 ON | 800 OFF | 1000 ON | 1300 OFF → จบ
-// ทุก step ที่เป็นคี่ = LOW, คู่ = HIGH; step6 ปิดสนิท
-// ระยะเวลารวมสูงสุด = 1300ms << BUZZER_MAX_MS (2000ms)
 void updateBuzzer() {
   if (!buzzerActive) return;
-
-  unsigned long elapsed = millis() - buzzerStartTime;
-
-  // Hard-cut: ถ้าเกิน 2 วิให้ตัดทิ้งทันที รอ trigger ใหม่
-  if (elapsed >= BUZZER_MAX_MS) {
-    buzzerActive = false;
-    digitalWrite(BUZZER_PIN, LOW);
-    Serial.println("[Buzzer] หยุด (ถึง 2 วิ)");
-    return;
-  }
-
-  unsigned long times[] = {300, 500, 800, 1000, 1300};  // 5 จุดเปลี่ยน, 6 state
-
-  if (buzzerStep < 5 && elapsed >= times[buzzerStep]) {
-    buzzerStep++;
-    // step1,3,5 = LOW (ระหว่างบี๊บ) | step2,4 = HIGH (บี๊บ)
-    if (buzzerStep % 2 == 0) {
-      digitalWrite(BUZZER_PIN, HIGH);
-    } else {
-      digitalWrite(BUZZER_PIN, LOW);
-    }
-  }
-
-  // สิ้นสุด pattern ที่ step5 (elapsed>=1300ms) → ปิด
-  if (buzzerStep >= 5 && elapsed >= times[4]) {
+  if (millis() - buzzerStartTime >= BUZZER_DURATION_MS) {
     buzzerActive = false;
     digitalWrite(BUZZER_PIN, LOW);
   }
 }
 
-// ================================================
-
-// แจ้งเตือน: รั้วบ้าน
 void alertFence() {
-  lastAlert1    = millis();
-  detectCount1  = 0;
+  lastAlert1 = millis();
+  triggered1 = true;
+  detectCount1 = 0;
+
+  String msg = "❗❗ แจ้งเตือน ❗❗\n";
+  msg += "🏚 ตรวจพบผู้ป่วย ณ\n";
+  msg += "บริเวณ รั้วบ้าน🏚\n";
+  msg += "🕐 เวลา: " + getTimestamp();
 
   Serial.println("[ALERT] รั้วบ้าน — " + getTimestamp());
   startBuzzer();
-
-  // ตรวจว่าเพิ่งส่ง LINE รั้วภายใน 30 วิหรือยัง
-  if (millis() - lastLine1 >= LINE_SAME_CD_MS) {
-    String msg  = "❗❗ แจ้งเตือน ❗❗\n";
-    msg        += "📌 ตรวจพบผู้ป่วย ณ\n";
-    msg        += "บริเวณ รั้วบ้าน🏚\n";
-    msg        += "🕐 เวลา: " + getTimestamp();
-    sendLine(msg);
-    lastLine1 = millis();
-  } else {
-    Serial.println("[LINE] รั้ว — ข้ามส่ง (cooldown 30s เหลือ "
-      + String((LINE_SAME_CD_MS - (millis() - lastLine1)) / 1000) + "s)");
-  }
+  sendLine(msg);
 }
 
-// แจ้งเตือน: สระว่ายน้ำ
 void alertPool() {
-  lastAlert2    = millis();
-  detectCount2  = 0;
+  lastAlert2 = millis();
+  triggered2 = true;
+  detectCount2 = 0;
+
+  String msg = "⚡⚡ แจ้งเตือน ⚡⚡\n";
+  msg += "💦 ตรวจพบผู้ป่วย ณ\n";
+  msg += "บริเวณ สระว่ายน้ำ💦\n";
+  msg += "🕐 เวลา: " + getTimestamp();
 
   Serial.println("[ALERT] สระว่ายน้ำ — " + getTimestamp());
   startBuzzer();
-
-  // ตรวจว่าเพิ่งส่ง LINE สระภายใน 30 วิหรือยัง
-  if (millis() - lastLine2 >= LINE_SAME_CD_MS) {
-    String msg  = "❗❗ แจ้งเตือน ❗❗\n";
-    msg        += "📌 ตรวจพบผู้ป่วย ณ\n";
-    msg        += "บริเวณ สระว่ายน้ำ🏊\n";
-    msg        += "🕐 เวลา: " + getTimestamp();
-    sendLine(msg);
-    lastLine2 = millis();
-  } else {
-    Serial.println("[LINE] สระ — ข้ามส่ง (cooldown 30s เหลือ "
-      + String((LINE_SAME_CD_MS - (millis() - lastLine2)) / 1000) + "s)");
-  }
+  sendLine(msg);
 }
 
 // ================================================
@@ -261,11 +212,15 @@ void loop() {
     if (dist1 < DETECT1_DIST_CM) {
       detectCount1++;
       Serial.println("[รั้วบ้าน] confirm: " + String(detectCount1) + "/" + String(DETECT_CONFIRM));
-      if (detectCount1 >= DETECT_CONFIRM && millis() - lastAlert1 >= COOLDOWN_MS) {
+      if (detectCount1 >= DETECT_CONFIRM
+          && !triggered1
+          && millis() - lastAlert1 >= COOLDOWN_MS) {
         alertFence();
       }
     } else {
+      // ออกจาก zone แล้ว → reset ให้ทริกใหม่ได้
       detectCount1 = 0;
+      triggered1 = false;
     }
   }
 
@@ -279,11 +234,15 @@ void loop() {
     if (dist2 < DETECT2_DIST_CM) {
       detectCount2++;
       Serial.println("[สระว่ายน้ำ] confirm: " + String(detectCount2) + "/" + String(DETECT_CONFIRM));
-      if (detectCount2 >= DETECT_CONFIRM && millis() - lastAlert2 >= COOLDOWN_MS) {
+      if (detectCount2 >= DETECT_CONFIRM
+          && !triggered2
+          && millis() - lastAlert2 >= COOLDOWN_MS) {
         alertPool();
       }
     } else {
+      // ออกจาก zone แล้ว → reset ให้ทริกใหม่ได้
       detectCount2 = 0;
+      triggered2 = false;
     }
   }
 

@@ -97,6 +97,8 @@ code.mono {
   font-size: 13px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
+  object-fit: cover;
+  overflow: hidden;
 }
 .brand-text h1 {
   font-size: 14px;

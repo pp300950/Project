@@ -380,19 +380,32 @@ function renderPie(data) {
     pool:    '#e8112d',   // แดงสด
     unknown: '#5a6a78',
   };
-  
+
+  // แปลง zone จาก DB (ภาษาไทย หรือ key อังกฤษ) → key มาตรฐาน
+  const ZONE_KEY_MAP = {
+    'รั้วบ้าน':    'fence',
+    'สระว่ายน้ำ':  'pool',
+    'เซนเซอร์ 3':  'pool',   // sensor3 นับรวมกับสระ
+    'fence':       'fence',
+    'pool':        'pool',
+  };
+  function zoneKey(zone) {
+    return ZONE_KEY_MAP[zone] || 'unknown';
+  }
+
   const total = data.reduce((s, r) => s + r.count, 0);
 
   const labels = data.map(r => zoneLabel(r.zone));
   const counts = data.map(r => r.count);
-  const colors = data.map(r => COLORS[r.zone] || '#8a9188');
+  const colors = data.map(r => COLORS[zoneKey(r.zone)] || '#8a9188');
 
   // Build legend HTML
   const legendHTML = data.map(r => {
     const pct = total ? ((r.count / total) * 100).toFixed(1) : '0.0';
+    const col = COLORS[zoneKey(r.zone)] || '#8a9188';
     return `
       <div class="legend-row">
-        <span class="legend-swatch" style="background:${COLORS[r.zone] || '#8a9188'}"></span>
+        <span class="legend-swatch" style="background:${col}"></span>
         <span class="legend-name">${zoneLabel(r.zone)}</span>
         <span class="legend-count">${r.count} ครั้ง</span>
         <span class="legend-pct">${pct}%</span>

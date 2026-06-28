@@ -1,248 +1,349 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Log — Smart Shoe Monitor</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css">
-<style>
-  .filter-panel{margin-bottom:1.4rem;}
-  .filter-grid{
-    display:grid;
-    grid-template-columns:repeat(5, 1fr) auto;
-    gap:.8rem;
-    padding:1.1rem 1.2rem;
-    align-items:end;
-  }
-  @media (max-width: 1100px){ .filter-grid{grid-template-columns:repeat(3,1fr); } }
-  @media (max-width: 700px){ .filter-grid{grid-template-columns:repeat(2,1fr); } }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="ctc.png">
+  <title>Log — Smart ALZ-Guard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .filter-panel {
+      margin-bottom: 1.4rem;
+    }
 
-  .f-field label{
-    display:block; font-size:11px; font-weight:600;
-    color:var(--ink-soft); margin-bottom:.35rem;
-  }
-  .f-field select, .f-field input{
-    width:100%; font-family:inherit; font-size:12.5px;
-    padding:.55rem .6rem;
-    border:1px solid var(--line); border-radius:var(--radius-sm);
-    background:#fdfcf9; color:var(--ink);
-  }
-  .f-field select:focus, .f-field input:focus{outline:none; border-color:var(--pine-mid); box-shadow:var(--focus-ring);}
-  .f-actions{display:flex; gap:.5rem;}
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr) auto;
+      gap: .8rem;
+      padding: 1.1rem 1.2rem;
+      align-items: end;
+    }
 
-  /* ===== table ===== */
-  .table-wrap{overflow-x:auto;}
-  table.log-table{width:100%; border-collapse:collapse; font-size:12.5px; min-width:780px;}
-  table.log-table thead th{
-    text-align:left; padding:.7rem 1rem;
-    font-size:10.5px; letter-spacing:.05em; text-transform:uppercase;
-    color:var(--ink-faint); border-bottom:1px solid var(--line);
-    background:var(--paper);
-    position:sticky; top:0;
-  }
-  table.log-table tbody td{
-    padding:.65rem 1rem; border-bottom:1px solid var(--line-soft);
-    vertical-align:middle;
-  }
-  table.log-table tbody tr:hover{background:var(--paper);}
-  table.log-table tbody tr:last-child td{border-bottom:none;}
-  .col-time{font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); white-space:nowrap;}
-  .col-device{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-faint);}
+    @media (max-width: 1100px) {
+      .filter-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
 
-  .table-scroll{max-height:62vh; overflow:auto;}
+    @media (max-width: 700px) {
+      .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
 
-  /* ===== pagination ===== */
-  .pagination{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:.9rem 1.2rem; border-top:1px solid var(--line-soft);
-    font-size:12px; color:var(--ink-soft); flex-wrap:wrap; gap:.6rem;
-  }
-  .page-controls{display:flex; align-items:center; gap:.5rem;}
-  .page-controls button{
-    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-sm);
-    padding:.4rem .75rem; font-size:12px; cursor:pointer; font-family:inherit;
-  }
-  .page-controls button:disabled{opacity:.4; cursor:not-allowed;}
-  .page-controls button:not(:disabled):hover{background:var(--paper);}
-  .page-num{font-family:'IBM Plex Mono',monospace;}
-</style>
+    .f-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      margin-bottom: .35rem;
+    }
+
+    .f-field select,
+    .f-field input {
+      width: 100%;
+      font-family: inherit;
+      font-size: 12.5px;
+      padding: .55rem .6rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: #fdfcf9;
+      color: var(--ink);
+    }
+
+    .f-field select:focus,
+    .f-field input:focus {
+      outline: none;
+      border-color: var(--pine-mid);
+      box-shadow: var(--focus-ring);
+    }
+
+    .f-actions {
+      display: flex;
+      gap: .5rem;
+    }
+
+    /* ===== table ===== */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table.log-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      min-width: 780px;
+    }
+
+    table.log-table thead th {
+      text-align: left;
+      padding: .7rem 1rem;
+      font-size: 10.5px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+      position: sticky;
+      top: 0;
+    }
+
+    table.log-table tbody td {
+      padding: .65rem 1rem;
+      border-bottom: 1px solid var(--line-soft);
+      vertical-align: middle;
+    }
+
+    table.log-table tbody tr:hover {
+      background: var(--paper);
+    }
+
+    table.log-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .col-time {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ink-soft);
+      white-space: nowrap;
+    }
+
+    .col-device {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      color: var(--ink-faint);
+    }
+
+    .table-scroll {
+      max-height: 62vh;
+      overflow: auto;
+    }
+
+    /* ===== pagination ===== */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .9rem 1.2rem;
+      border-top: 1px solid var(--line-soft);
+      font-size: 12px;
+      color: var(--ink-soft);
+      flex-wrap: wrap;
+      gap: .6rem;
+    }
+
+    .page-controls {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .page-controls button {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: .4rem .75rem;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .page-controls button:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .page-controls button:not(:disabled):hover {
+      background: var(--paper);
+    }
+
+    .page-num {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+  </style>
 </head>
+
 <body>
 
-<header class="app-header">
-  <div class="brand">
-    <div class="brand-mark">SS</div>
-    <div class="brand-text">
-      <h1>Smart Shoe Monitor</h1>
-      <p>ระบบเฝ้าระวังการสวมรองเท้าและความเสี่ยงการพลัดหลง</p>
-    </div>
-  </div>
-  <nav class="app-nav" aria-label="เมนูหลัก">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="log.html" aria-current="page">Log</a>
-    <a href="report.html">Report</a>
-  </nav>
-  <div class="header-right">
-    <div class="user-pill">ผู้ดูแล: <span class="who" id="headerUser">—</span></div>
-    <button class="logout-btn" id="logoutBtn">ออกจากระบบ</button>
-  </div>
-</header>
-
-<main class="app-main">
-
-  <div class="section-label">ตัวกรองเหตุการณ์</div>
-  <div class="panel filter-panel">
-    <div class="filter-grid">
-      <div class="f-field">
-        <label for="fDevice">อุปกรณ์</label>
-        <select id="fDevice"><option value="">ทั้งหมด</option></select>
-      </div>
-      <div class="f-field">
-        <label for="fType">ประเภทเหตุการณ์</label>
-        <select id="fType">
-          <option value="">ทั้งหมด</option>
-          <option value="zone_breach">เข้าใกล้จุดอันตราย</option>
-          <option value="shoe_removed">ถอดรองเท้า</option>
-          <option value="step_data">ข้อมูลการเดิน</option>
-          <option value="heartbeat">heartbeat</option>
-        </select>
-      </div>
-      <div class="f-field">
-        <label for="fZone">จุดเสี่ยง</label>
-        <select id="fZone">
-          <option value="">ทั้งหมด</option>
-          <option value="fence">รั้วบ้าน</option>
-          <option value="pool">สระว่ายน้ำ</option>
-        </select>
-      </div>
-      <div class="f-field">
-        <label for="fFrom">จากวันที่</label>
-        <input type="date" id="fFrom">
-      </div>
-      <div class="f-field">
-        <label for="fTo">ถึงวันที่</label>
-        <input type="date" id="fTo">
-      </div>
-      <div class="f-actions">
-        <button class="btn btn-primary" id="applyFilters">กรอง</button>
-        <button class="btn btn-ghost" id="clearFilters">ล้าง</button>
+  <header class="app-header">
+    <div class="brand">
+      <img src="logo.png" alt="ALZ Guard" class="brand-mark">
+      <div class="brand-text">
+        <h1>Smart IoT for Alzheimer's Safety</h1>
+        <p>ระบบอัจฉริยะเฝ้าระวังเเละบันทึกความเสี่ยง</p>
       </div>
     </div>
-  </div>
-
-  <div class="section-label">รายการเหตุการณ์</div>
-  <div class="panel">
-    <div class="panel-head">
-      <h2>Event log</h2>
-      <span class="count" id="logCount">—</span>
+    <nav class="app-nav" aria-label="เมนูหลัก">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="log.html" aria-current="page">Log</a>
+      <a href="report.html">Report</a>
+    </nav>
+    <div class="header-right">
+      <div class="user-pill">ผู้ดูแล: <span class="who" id="headerUser">—</span></div>
+      <button class="logout-btn" id="logoutBtn">ออกจากระบบ</button>
     </div>
+  </header>
 
-    <div id="logBody">
-      <div class="state-block"><span class="spinner"></span></div>
-    </div>
+  <main class="app-main">
 
-    <div class="pagination" id="pagination" style="display:none;">
-      <span id="pageInfo"></span>
-      <div class="page-controls">
-        <button id="prevPage">← ก่อนหน้า</button>
-        <span class="page-num" id="pageNum">1</span>
-        <button id="nextPage">ถัดไป →</button>
+    <div class="section-label">ตัวกรองเหตุการณ์</div>
+    <div class="panel filter-panel">
+      <div class="filter-grid">
+        <div class="f-field">
+          <label for="fDevice">อุปกรณ์</label>
+          <select id="fDevice">
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
+        <div class="f-field">
+          <label for="fType">ประเภทเหตุการณ์</label>
+          <select id="fType">
+            <option value="">ทั้งหมด</option>
+            <option value="zone_breach">เข้าใกล้จุดอันตราย</option>
+            <option value="shoe_removed">ถอดรองเท้า</option>
+            <option value="step_data">ข้อมูลการเดิน</option>
+            <option value="heartbeat">heartbeat</option>
+          </select>
+        </div>
+        <div class="f-field">
+          <label for="fZone">จุดเสี่ยง</label>
+          <select id="fZone">
+            <option value="">ทั้งหมด</option>
+            <option value="fence">รั้วบ้าน</option>
+            <option value="pool">สระว่ายน้ำ</option>
+          </select>
+        </div>
+        <div class="f-field">
+          <label for="fFrom">จากวันที่</label>
+          <input type="date" id="fFrom">
+        </div>
+        <div class="f-field">
+          <label for="fTo">ถึงวันที่</label>
+          <input type="date" id="fTo">
+        </div>
+        <div class="f-actions">
+          <button class="btn btn-primary" id="applyFilters">กรอง</button>
+          <button class="btn btn-ghost" id="clearFilters">ล้าง</button>
+        </div>
       </div>
     </div>
-  </div>
 
-</main>
+    <div class="section-label">รายการเหตุการณ์</div>
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Event log</h2>
+        <span class="count" id="logCount">—</span>
+      </div>
 
-<script src="shared.js"></script>
-<script>
-  requireAuth();
-  initHeaderChrome();
+      <div id="logBody">
+        <div class="state-block"><span class="spinner"></span></div>
+      </div>
 
-  const state = { page: 1, per_page: 50, pages: 1, total: 0 };
+      <div class="pagination" id="pagination" style="display:none;">
+        <span id="pageInfo"></span>
+        <div class="page-controls">
+          <button id="prevPage">← ก่อนหน้า</button>
+          <span class="page-num" id="pageNum">1</span>
+          <button id="nextPage">ถัดไป →</button>
+        </div>
+      </div>
+    </div>
 
-  function currentFilters() {
-    const f = {};
-    const device = document.getElementById('fDevice').value;
-    const type = document.getElementById('fType').value;
-    const zone = document.getElementById('fZone').value;
-    const from = document.getElementById('fFrom').value;
-    const to = document.getElementById('fTo').value;
-    if (device) f.device_id = device;
-    if (type) f.event_type = type;
-    if (zone) f.zone = zone;
-    if (from) f.from_ts = `${from}T00:00:00+07:00`;
-    if (to) f.to_ts = `${to}T23:59:59+07:00`;
-    return f;
-  }
+  </main>
 
-  function buildQuery(params) {
-    const usp = new URLSearchParams(params);
-    return usp.toString() ? `?${usp.toString()}` : '';
-  }
+  <script src="shared.js"></script>
+  <script>
+    requireAuth();
+    initHeaderChrome();
 
-  async function loadDevices() {
-    try {
-      const devices = await authFetch('/api/devices');
-      const sel = document.getElementById('fDevice');
-      (devices || []).forEach(d => {
-        const opt = document.createElement('option');
-        opt.value = d.device_id;
-        opt.textContent = d.label ? `${d.label} (${d.device_id})` : d.device_id;
-        sel.appendChild(opt);
-      });
-    } catch (err) {
-      // ไม่ critical ต่อหน้านี้ — ปล่อยให้ dropdown เหลือแค่ "ทั้งหมด"
+    const state = { page: 1, per_page: 50, pages: 1, total: 0 };
+
+    function currentFilters() {
+      const f = {};
+      const device = document.getElementById('fDevice').value;
+      const type = document.getElementById('fType').value;
+      const zone = document.getElementById('fZone').value;
+      const from = document.getElementById('fFrom').value;
+      const to = document.getElementById('fTo').value;
+      if (device) f.device_id = device;
+      if (type) f.event_type = type;
+      if (zone) f.zone = zone;
+      if (from) f.from_ts = `${from}T00:00:00+07:00`;
+      if (to) f.to_ts = `${to}T23:59:59+07:00`;
+      return f;
     }
-  }
 
-  async function loadLogs() {
-    const body = document.getElementById('logBody');
-    body.innerHTML = `<div class="state-block"><span class="spinner"></span></div>`;
-    document.getElementById('pagination').style.display = 'none';
+    function buildQuery(params) {
+      const usp = new URLSearchParams(params);
+      return usp.toString() ? `?${usp.toString()}` : '';
+    }
 
-    const params = { ...currentFilters(), page: state.page, per_page: state.per_page };
-
-    try {
-      const data = await authFetch(`/api/logs${buildQuery(params)}`);
-      state.page = data.page;
-      state.pages = data.pages || 1;
-      state.total = data.total || 0;
-      renderTable(data.data || []);
-      renderPagination();
-      document.getElementById('logCount').textContent = `${state.total} รายการ`;
-    } catch (err) {
-      if (err.status !== 401) {
-        body.innerHTML = `<div class="state-block error"><span class="state-icon">⚠</span>${err.message || 'โหลดข้อมูลไม่สำเร็จ'}</div>`;
+    async function loadDevices() {
+      try {
+        const devices = await authFetch('/api/devices');
+        const sel = document.getElementById('fDevice');
+        (devices || []).forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.device_id;
+          opt.textContent = d.label ? `${d.label} (${d.device_id})` : d.device_id;
+          sel.appendChild(opt);
+        });
+      } catch (err) {
+        // ไม่ critical ต่อหน้านี้ — ปล่อยให้ dropdown เหลือแค่ "ทั้งหมด"
       }
     }
-  }
 
-  function renderTable(rows) {
-    const body = document.getElementById('logBody');
-    if (!rows.length) {
-      body.innerHTML = `<div class="state-block"><span class="state-icon">—</span>ไม่พบเหตุการณ์ตามเงื่อนไขที่เลือก</div>`;
-      return;
+    async function loadLogs() {
+      const body = document.getElementById('logBody');
+      body.innerHTML = `<div class="state-block"><span class="spinner"></span></div>`;
+      document.getElementById('pagination').style.display = 'none';
+
+      const params = { ...currentFilters(), page: state.page, per_page: state.per_page };
+
+      try {
+        const data = await authFetch(`/api/logs${buildQuery(params)}`);
+        state.page = data.page;
+        state.pages = data.pages || 1;
+        state.total = data.total || 0;
+        renderTable(data.data || []);
+        renderPagination();
+        document.getElementById('logCount').textContent = `${state.total} รายการ`;
+      } catch (err) {
+        if (err.status !== 401) {
+          body.innerHTML = `<div class="state-block error"><span class="state-icon">⚠</span>${err.message || 'โหลดข้อมูลไม่สำเร็จ'}</div>`;
+        }
+      }
     }
 
-    const trs = rows.map(r => {
-      const sev = eventSeverity(r);
-      const time = r.ts_local ? new Date(r.ts_local).toLocaleString('th-TH', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }) : '—';
-
-      let detail = '—';
-      if (r.event_type === 'zone_breach') {
-        detail = `${zoneLabel(r.zone)} · ${fmtDistance(r.distance_cm)}`;
-      } else if (r.event_type === 'shoe_removed') {
-        if (r.shoe_left === false && r.shoe_right === false) detail = 'ทั้งสองข้าง';
-        else if (r.shoe_left === false) detail = 'ข้างซ้าย';
-        else if (r.shoe_right === false) detail = 'ข้างขวา';
-        else detail = 'สวมครบ';
-      } else if (r.event_type === 'step_data') {
-        detail = `${r.step_count ?? 0} ก้าว`;
+    function renderTable(rows) {
+      const body = document.getElementById('logBody');
+      if (!rows.length) {
+        body.innerHTML = `<div class="state-block"><span class="state-icon">—</span>ไม่พบเหตุการณ์ตามเงื่อนไขที่เลือก</div>`;
+        return;
       }
 
-      return `
+      const trs = rows.map(r => {
+        const sev = eventSeverity(r);
+        const time = r.ts_local ? new Date(r.ts_local).toLocaleString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '—';
+
+        let detail = '—';
+        if (r.event_type === 'zone_breach') {
+          detail = `${zoneLabel(r.zone)} · ${fmtDistance(r.distance_cm)}`;
+        } else if (r.event_type === 'shoe_removed') {
+          if (r.shoe_left === false && r.shoe_right === false) detail = 'ทั้งสองข้าง';
+          else if (r.shoe_left === false) detail = 'ข้างซ้าย';
+          else if (r.shoe_right === false) detail = 'ข้างขวา';
+          else detail = 'สวมครบ';
+        } else if (r.event_type === 'step_data') {
+          detail = `${r.step_count ?? 0} ก้าว`;
+        }
+
+        return `
         <tr>
           <td class="col-time">${time}</td>
           <td><span class="chip ${sev}">${eventTypeLabel(r.event_type)}</span></td>
@@ -251,9 +352,9 @@
           <td>${detail}</td>
         </tr>
       `;
-    }).join('');
+      }).join('');
 
-    body.innerHTML = `
+      body.innerHTML = `
       <div class="table-wrap table-scroll">
         <table class="log-table">
           <thead>
@@ -269,45 +370,46 @@
         </table>
       </div>
     `;
-  }
+    }
 
-  function renderPagination() {
-    const pag = document.getElementById('pagination');
-    if (state.total === 0) { pag.style.display = 'none'; return; }
-    pag.style.display = 'flex';
+    function renderPagination() {
+      const pag = document.getElementById('pagination');
+      if (state.total === 0) { pag.style.display = 'none'; return; }
+      pag.style.display = 'flex';
 
-    const startRow = (state.page - 1) * state.per_page + 1;
-    const endRow = Math.min(state.page * state.per_page, state.total);
-    document.getElementById('pageInfo').textContent = `แสดง ${startRow}–${endRow} จาก ${state.total} รายการ`;
-    document.getElementById('pageNum').textContent = `${state.page} / ${state.pages}`;
+      const startRow = (state.page - 1) * state.per_page + 1;
+      const endRow = Math.min(state.page * state.per_page, state.total);
+      document.getElementById('pageInfo').textContent = `แสดง ${startRow}–${endRow} จาก ${state.total} รายการ`;
+      document.getElementById('pageNum').textContent = `${state.page} / ${state.pages}`;
 
-    document.getElementById('prevPage').disabled = state.page <= 1;
-    document.getElementById('nextPage').disabled = state.page >= state.pages;
-  }
+      document.getElementById('prevPage').disabled = state.page <= 1;
+      document.getElementById('nextPage').disabled = state.page >= state.pages;
+    }
 
-  document.getElementById('applyFilters').addEventListener('click', () => {
-    state.page = 1;
+    document.getElementById('applyFilters').addEventListener('click', () => {
+      state.page = 1;
+      loadLogs();
+    });
+    document.getElementById('clearFilters').addEventListener('click', () => {
+      document.getElementById('fDevice').value = '';
+      document.getElementById('fType').value = '';
+      document.getElementById('fZone').value = '';
+      document.getElementById('fFrom').value = '';
+      document.getElementById('fTo').value = '';
+      state.page = 1;
+      loadLogs();
+    });
+    document.getElementById('prevPage').addEventListener('click', () => {
+      if (state.page > 1) { state.page -= 1; loadLogs(); }
+    });
+    document.getElementById('nextPage').addEventListener('click', () => {
+      if (state.page < state.pages) { state.page += 1; loadLogs(); }
+    });
+
+    loadDevices();
     loadLogs();
-  });
-  document.getElementById('clearFilters').addEventListener('click', () => {
-    document.getElementById('fDevice').value = '';
-    document.getElementById('fType').value = '';
-    document.getElementById('fZone').value = '';
-    document.getElementById('fFrom').value = '';
-    document.getElementById('fTo').value = '';
-    state.page = 1;
-    loadLogs();
-  });
-  document.getElementById('prevPage').addEventListener('click', () => {
-    if (state.page > 1) { state.page -= 1; loadLogs(); }
-  });
-  document.getElementById('nextPage').addEventListener('click', () => {
-    if (state.page < state.pages) { state.page += 1; loadLogs(); }
-  });
-
-  loadDevices();
-  loadLogs();
-</script>
+  </script>
 
 </body>
+
 </html>
